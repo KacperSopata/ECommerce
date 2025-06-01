@@ -13,10 +13,9 @@ namespace ECommerce.Application.Services
             _productRepository = productRepository;
         }
 
-        public Task<IEnumerable<Product>> GetAllAsync()
-        {
-            return _productRepository.GetAllAsync();
-        }
+        public Task<List<Product>> GetAllAsync() =>
+       _productRepository.GetAllAsync();
+
 
         public Task<Product?> GetByIdAsync(int id)
         {

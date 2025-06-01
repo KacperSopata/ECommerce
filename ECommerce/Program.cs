@@ -11,14 +11,22 @@ builder.Services.AddInfrastructure();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Use PostgreSQL (not SQL Server anymore)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ECommerceDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString)); // <-- Używamy PostgreSQL
 
-// 👇 DODAJ TO
+// Make the app listen on port 8080 for Render
 builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 var app = builder.Build();
+
+// AUTOMATYCZNE migracje bazy przy starcie aplikacji
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ECommerceDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

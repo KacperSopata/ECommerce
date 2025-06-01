@@ -31,10 +31,20 @@ namespace ECommerce.Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<List<Product>> GetAllAsync()
         {
-            return await _context.Products.ToListAsync();
+            try
+            {
+                return await _context.Products.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Zaloguj wyjątek, np. używając ILogger (jeśli masz)
+                Console.WriteLine($"Błąd pobierania produktów: {ex.Message}");
+                throw; // możesz też rzucić dalej, żeby kontroler dostał błąd
+            }
         }
+
 
         public async Task<Product?> GetByIdAsync(int id)
         {

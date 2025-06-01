@@ -24,8 +24,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/ecommerce-app:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/ecommerce-app:latest
+          docker buildx build --push -t ${{ secrets.DOCKER_USERNAME }}/ecommerce-app:latest .
 
       - name: Deploy to Render
         run: |

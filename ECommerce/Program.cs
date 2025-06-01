@@ -17,7 +17,8 @@ builder.Services.AddDbContext<ECommerceDbContext>(options =>
     options.UseNpgsql(connectionString)); // <-- Używamy PostgreSQL
 
 // Make the app listen on port 8080 for Render
-builder.WebHost.UseUrls("http://0.0.0.0:8080");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 var app = builder.Build();
 
@@ -35,7 +36,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

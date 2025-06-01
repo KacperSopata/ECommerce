@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Kopiujemy solution i projekty (ścieżki relatywne do Dockerfile w folderze ECommerce)
+# Kopiujemy solution i projekty
 COPY ECommerce.sln ./
 COPY ECommerce/ECommerce.csproj ./ECommerce/
 COPY ECommerce.Application/ECommerce.Application.csproj ./ECommerce.Application/
@@ -24,6 +24,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/out .
 
-EXPOSE 80
+EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "ECommerce.dll"]

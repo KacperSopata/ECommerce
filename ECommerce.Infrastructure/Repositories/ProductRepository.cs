@@ -46,6 +46,5 @@ namespace ECommerce.Infrastructure.Repositories
             return await _context.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
         }
 
-
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ECommerce.Domain.Model;
 using ECommerce.Application.Interfaces;
+using ECommerce.Application.Dtos.Order; // użycie istniejącego DTO
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ECommerce.UI.Controllers
@@ -33,8 +35,14 @@ namespace ECommerce.UI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(Order order)
+        public async Task<ActionResult> Create([FromBody] CreateOrderDto dto)
         {
+            var order = new Order
+            {
+                CreatedAt = dto.CreatedAt,
+                Products = dto.ProductIds.Select(id => new Product { Id = id }).ToList()
+            };
+
             await _orderService.AddAsync(order);
             return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
         }

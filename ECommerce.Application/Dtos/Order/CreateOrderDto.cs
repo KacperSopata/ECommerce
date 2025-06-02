@@ -2,6 +2,8 @@
 {
     public class CreateOrderDto
     {
+
         public List<int> ProductIds { get; set; } = new();
+        public DateTime CreatedAt { get; set; }
     }
 }

@@ -9,11 +9,12 @@ namespace ECommerce.Domain.Interfaces
 {
     public interface IProductRepository
     {
-        Task<List<Product>> GetAllAsync();
+        Task<IEnumerable<Product>> GetAllAsync();
         Task<Product?> GetByIdAsync(int id);
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(int id);
-        Task<IEnumerable<Product>> GetByIdsAsync(List<int> ids);
+        Task<List<Product>> GetByIdsAsync(List<int> ids); // <- do zamówień
+
     }
 }

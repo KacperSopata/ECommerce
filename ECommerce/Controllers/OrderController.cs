@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ECommerce.Domain.Model;
+﻿using ECommerce.Application.Dtos.Order;
+using ECommerce.Application.Dtos.Product;
 using ECommerce.Application.Interfaces;
-using ECommerce.Application.Dtos.Order; // użycie istniejącego DTO
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ECommerce.Domain.Model;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerce.UI.Controllers
 {
@@ -13,45 +11,104 @@ namespace ECommerce.UI.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IProductService _productService;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(IOrderService orderService, IProductService productService)
         {
             _orderService = orderService;
+            _productService = productService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetAll()
+        public async Task<ActionResult<IEnumerable<OrderDto>>> GetAll()
         {
             var orders = await _orderService.GetAllAsync();
-            return Ok(orders);
+            var result = orders.Select(order => new OrderDto
+            {
+                Id = order.Id,
+                CreatedAt = order.CreatedAt,
+                Products = order.Products.Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Description = p.Description,
+                    IsAvailable = p.IsAvailable
+                }).ToList()
+            });
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order?>> GetById(int id)
+        public async Task<ActionResult<OrderDto>> GetById(int id)
         {
             var order = await _orderService.GetByIdAsync(id);
             if (order == null) return NotFound();
-            return Ok(order);
+
+            var dto = new OrderDto
+            {
+                Id = order.Id,
+                CreatedAt = order.CreatedAt,
+                Products = order.Products.Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Description = p.Description,
+                    IsAvailable = p.IsAvailable
+                }).ToList()
+            };
+
+            return Ok(dto);
         }
 
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] CreateOrderDto dto)
         {
+            // pobierz produkty po ID z repozytorium (żeby mieć pełne encje)
+            var products = await _productService.GetByIdsAsync(dto.ProductIds);
+
+            if (products.Count != dto.ProductIds.Count)
+                return BadRequest("Niektóre produkty nie istnieją.");
+
             var order = new Order
             {
-                CreatedAt = dto.CreatedAt,
-                Products = dto.ProductIds.Select(id => new Product { Id = id }).ToList()
+                CreatedAt = dto.CreatedAt.ToUniversalTime(), // PostgreSQL wymaga UTC!
+                Products = products
             };
 
             await _orderService.AddAsync(order);
-            return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
+
+            var result = new OrderDto
+            {
+                Id = order.Id,
+                CreatedAt = order.CreatedAt,
+                Products = order.Products.Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    Description = p.Description,
+                    IsAvailable = p.IsAvailable
+                }).ToList()
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = order.Id }, result);
         }
 
+
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, Order order)
+        public async Task<ActionResult> Update(int id, [FromBody] CreateOrderDto dto)
         {
-            if (id != order.Id)
-                return BadRequest("ID mismatch");
+            var products = await _orderService.GetProductsByIdsAsync(dto.ProductIds);
+
+            var order = new Order
+            {
+                Id = id,
+                CreatedAt = dto.CreatedAt.ToUniversalTime(),
+                Products = products
+            };
 
             await _orderService.UpdateAsync(order);
             return NoContent();

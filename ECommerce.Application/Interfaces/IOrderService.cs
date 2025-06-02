@@ -11,5 +11,7 @@ namespace ECommerce.Application.Interfaces
         Task AddAsync(Order order);
         Task<Order> UpdateAsync(Order order);
         Task DeleteAsync(int id);
+
+        Task<List<Product>> GetProductsByIdsAsync(List<int> ids); // <- pomocnicza
     }
 }

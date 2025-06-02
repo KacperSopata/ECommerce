@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using ECommerce.Domain.Interfaces;
+﻿using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Repositories
 {
@@ -16,18 +14,10 @@ namespace ECommerce.Infrastructure.Repositories
         }
 
         public async Task<IEnumerable<Order>> GetAllAsync()
-        {
-            return await _context.Orders
-                .Include(o => o.Products)
-                .ToListAsync();
-        }
+            => await _context.Orders.Include(o => o.Products).ToListAsync();
 
         public async Task<Order?> GetByIdAsync(int id)
-        {
-            return await _context.Orders
-                .Include(o => o.Products)
-                .FirstOrDefaultAsync(o => o.Id == id);
-        }
+            => await _context.Orders.Include(o => o.Products).FirstOrDefaultAsync(o => o.Id == id);
 
         public async Task AddAsync(Order order)
         {
@@ -42,20 +32,17 @@ namespace ECommerce.Infrastructure.Repositories
                 .FirstOrDefaultAsync(o => o.Id == order.Id);
 
             if (existingOrder == null)
-                throw new KeyNotFoundException($"Order with id {order.Id} not found");
+                throw new KeyNotFoundException($"Order with ID {order.Id} not found");
 
             existingOrder.CreatedAt = order.CreatedAt;
-
             existingOrder.Products.Clear();
 
             foreach (var product in order.Products)
-            {
-                _context.Attach(product);
-                existingOrder.Products.Add(product);
-            }
+                _context.Attach(product); // ważne
+
+            existingOrder.Products = order.Products;
 
             await _context.SaveChangesAsync();
-
             return existingOrder;
         }
 

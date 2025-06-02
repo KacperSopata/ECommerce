@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using ECommerce.Domain.Interfaces;
+﻿using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,9 +13,21 @@ namespace ECommerce.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<IEnumerable<Product>> GetAllAsync()
+            => await _context.Products.ToListAsync();
+
+        public async Task<Product?> GetByIdAsync(int id)
+            => await _context.Products.FindAsync(id);
+
         public async Task AddAsync(Product product)
         {
             await _context.Products.AddAsync(product);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Product product)
+        {
+            _context.Products.Update(product);
             await _context.SaveChangesAsync();
         }
 
@@ -31,37 +41,11 @@ namespace ECommerce.Infrastructure.Repositories
             }
         }
 
-        public async Task<List<Product>> GetAllAsync()
+        public async Task<List<Product>> GetByIdsAsync(List<int> ids)
         {
-            try
-            {
-                return await _context.Products.ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                // Zaloguj wyjątek, np. używając ILogger (jeśli masz)
-                Console.WriteLine($"Błąd pobierania produktów: {ex.Message}");
-                throw; // możesz też rzucić dalej, żeby kontroler dostał błąd
-            }
+            return await _context.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
         }
 
-
-        public async Task<Product?> GetByIdAsync(int id)
-        {
-            return await _context.Products.FindAsync(id);
-        }
-
-        public async Task UpdateAsync(Product product)
-        {
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
-        }
-        public async Task<IEnumerable<Product>> GetByIdsAsync(List<int> ids)
-        {
-            return await _context.Products
-                .Where(p => ids.Contains(p.Id))
-                .ToListAsync();
-        }
 
     }
 }

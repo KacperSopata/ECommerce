@@ -2,39 +2,23 @@
 using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Model;
 
-namespace ECommerce.Application.Services
+public class ProductService : IProductService
 {
-    public class ProductService : IProductService
+    private readonly IProductRepository _repository;
+
+    public ProductService(IProductRepository repository)
     {
-        private readonly IProductRepository _productRepository;
-
-        public ProductService(IProductRepository productRepository)
-        {
-            _productRepository = productRepository;
-        }
-
-        public Task<List<Product>> GetAllAsync() =>
-       _productRepository.GetAllAsync();
-
-
-        public Task<Product?> GetByIdAsync(int id)
-        {
-            return _productRepository.GetByIdAsync(id);
-        }
-
-        public Task AddAsync(Product product)
-        {
-            return _productRepository.AddAsync(product);
-        }
-
-        public Task UpdateAsync(Product product)
-        {
-            return _productRepository.UpdateAsync(product);
-        }
-
-        public Task DeleteAsync(int id)
-        {
-            return _productRepository.DeleteAsync(id);
-        }
+        _repository = repository;
     }
+
+    public async Task<IEnumerable<Product>> GetAllAsync() => await _repository.GetAllAsync();
+    public async Task<Product?> GetByIdAsync(int id) => await _repository.GetByIdAsync(id);
+    public async Task AddAsync(Product product) => await _repository.AddAsync(product);
+    public async Task UpdateAsync(Product product) => await _repository.UpdateAsync(product);
+    public async Task DeleteAsync(int id) => await _repository.DeleteAsync(id);
+    public async Task<List<Product>> GetByIdsAsync(List<int> ids)
+    {
+        return await _repository.GetByIdsAsync(ids);
+    }
+
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ECommerce.Application.Interfaces;
-using ECommerce.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ECommerce.Application

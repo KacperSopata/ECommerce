@@ -23,7 +23,7 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 var app = builder.Build();
 
-// AUTOMATYCZNE migracje + dodanie danych testowych
+// Wykonaj tylko migrację (bez seedowania testowych danych)
 using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<ECommerceDbContext>();
 
@@ -31,25 +31,10 @@ try
 {
     dbContext.Database.Migrate();
     Console.WriteLine("Migracje wykonane.");
-
-    var hasProducts = dbContext.Products.Any();
-    Console.WriteLine($"Czy tabela Products ma dane? {hasProducts}");
-
-    if (!hasProducts)
-    {
-        dbContext.Products.AddRange(new[]
-        {
-            new Product { Name = "Laptop", Price = 2999.99, Description = "Laptop do pracy i gier", IsAvailable = true },
-            new Product { Name = "Smartfon", Price = 1499.50, Description = "Nowoczesny smartfon z dobrym aparatem", IsAvailable = true }
-        });
-
-        dbContext.SaveChanges();
-        Console.WriteLine("Dane seedowane.");
-    }
 }
 catch (Exception ex)
 {
-    Console.WriteLine("Błąd podczas migracji/seedowania: " + ex.Message);
+    Console.WriteLine("Błąd podczas migracji: " + ex.Message);
 }
 
 // Configure the HTTP request pipeline

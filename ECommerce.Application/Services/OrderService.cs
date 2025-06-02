@@ -1,43 +1,38 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using ECommerce.Application.Interfaces;
+﻿using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Interfaces;
 using ECommerce.Domain.Model;
 
-namespace ECommerce.Application.Services
+public class OrderService : IOrderService
 {
-    public class OrderService : IOrderService
+    private readonly IOrderRepository _orderRepository;
+
+    public OrderService(IOrderRepository orderRepository)
     {
-        private readonly IOrderRepository _orderRepository;
+        _orderRepository = orderRepository;
+    }
 
-        public OrderService(IOrderRepository orderRepository)
-        {
-            _orderRepository = orderRepository;
-        }
+    public async Task<IEnumerable<Order>> GetAllAsync()
+    {
+        return await _orderRepository.GetAllAsync(); // ← tu już działa z Include
+    }
 
-        public Task<IEnumerable<Order>> GetAllAsync()
-        {
-            return _orderRepository.GetAllAsync();
-        }
+    public async Task<Order?> GetByIdAsync(int id)
+    {
+        return await _orderRepository.GetByIdAsync(id); // ← też działa
+    }
 
-        public Task<Order?> GetByIdAsync(int id)
-        {
-            return _orderRepository.GetByIdAsync(id);
-        }
+    public async Task AddAsync(Order order)
+    {
+        await _orderRepository.AddAsync(order);
+    }
 
-        public Task AddAsync(Order order)
-        {
-            return _orderRepository.AddAsync(order);
-        }
+    public async Task<Order> UpdateAsync(Order order)
+    {
+        return await _orderRepository.UpdateAsync(order);
+    }
 
-        public Task<Order> UpdateAsync(Order order)
-        {
-            return _orderRepository.UpdateAsync(order);
-        }
-
-        public Task DeleteAsync(int id)
-        {
-            return _orderRepository.DeleteAsync(id);
-        }
+    public async Task DeleteAsync(int id)
+    {
+        await _orderRepository.DeleteAsync(id);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using ECommerce.Application;
 using ECommerce.Infrastructure;
-using ECommerce.Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

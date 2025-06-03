@@ -74,12 +74,9 @@ namespace ECommerce.UI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] ProductDto productDto)
         {
-            if (id != productDto.Id)
-                return BadRequest("ID mismatch");
-
             var product = new Product
             {
-                Id = productDto.Id,
+                Id = id, // tylko z URL
                 Name = productDto.Name,
                 Price = productDto.Price,
                 Description = productDto.Description,
@@ -89,6 +86,7 @@ namespace ECommerce.UI.Controllers
             await _productService.UpdateAsync(product);
             return NoContent();
         }
+
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
